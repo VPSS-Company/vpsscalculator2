@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>VPSS Calculator — Smart Calculator</title>
+  <meta
+    name="description"
+    content="VPSS Calculator — a modern calculator with scientific functions, history and currency conversion."
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #eef4ff;
+      --bg2: #f8fbff;
+
+      --card: rgba(255, 255, 255, 0.88);
+      --card-solid: #ffffff;
+
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-soft: #dbeafe;
+
+      --text: #0f172a;
+      --muted: #64748b;
+
+      --border: rgba(148, 163, 184, 0.22);
+
+      --button: #f8fafc;
+      --button-hover: #eef2f7;
+
+      --operator: #dbeafe;
+      --operator-hover: #bfdbfe;
+
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+
+      --success: #10b981;
+      --success-dark: #059669;
+
+      --shadow:
+        0 25px 60px rgba(15, 23, 42, 0.09);
+
+      --small-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 10% 0%,
+          rgba(59, 130, 246, 0.18),
+          transparent 32rem
+        ),
+        radial-gradient(
+          circle at 90% 100%,
+          rgba(16, 185, 129, 0.12),
+          transparent 30rem
+        ),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+
+      padding: 32px 16px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1080px;
+      margin: auto;
+    }
+
+    /* ================= HEADER ================= */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 16px;
+
+      color: white;
+      font-size: 22px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #4f46e5
+        );
+
+      box-shadow:
+        0 12px 28px rgba(37, 99, 235, 0.28);
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 8px 12px;
+
+      border-radius: 999px;
+
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--border);
+
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+    }
+
+    /* ================= TABS ================= */
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+
+      max-width: 650px;
+
+      padding: 5px;
+      margin-bottom: 22px;
+
+      border-radius: 17px;
+
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border);
+
+      box-shadow: var(--small-shadow);
+
+      backdrop-filter: blur(15px);
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+
+      color: var(--muted);
+
+      padding: 12px 14px;
+
+      border-radius: 13px;
+
+      font-size: 13px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition:
+        0.2s ease;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .tab.active {
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #4f46e5
+        );
+
+      box-shadow:
+        0 7px 18px rgba(37, 99, 235, 0.25);
+    }
+
+    /* ================= LAYOUT ================= */
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.55fr 0.8fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .layout.single {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+
+      border-radius: 24px;
+
+      padding: 22px;
+
+      box-shadow: var(--shadow);
+
+      backdrop-filter: blur(18px);
+
+      animation: cardIn 0.35s ease;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ================= DISPLAY ================= */
+
+    .display {
+      min-height: 142px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      padding: 20px;
+
+      margin-bottom: 18px;
+
+      text-align: right;
+
+      border-radius: 18px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #f8fafc,
+          #edf4ff
+        );
+
+      border: 1px solid var(--border);
+
+      overflow: hidden;
+    }
+
+    .expression {
+      min-height: 24px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      font-weight: 500;
+
+      word-break: break-all;
+    }
+
+    .result {
+      color: var(--text);
+
+      font-size: clamp(
+        2.1rem,
+        6vw,
+        3.4rem
+      );
+
+      line-height: 1.1;
+
+      font-weight: 800;
+
+      letter-spacing: -1.5px;
+
+      word-break: break-all;
+    }
+
+    .display.error .result {
+      color: var(--danger);
+      font-size: 2rem;
+    }
+
+    /* ================= KEYPAD ================= */
+
+    .keypad {
+      display: grid;
+      gap: 10px;
+    }
+
+    .basic-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .scientific-grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .key {
+      min-height: 62px;
+
+      border: 1px solid rgba(148, 163, 184, 0.15);
+
+      border-radius: 15px;
+
+      background: var(--button);
+
+      color: var(--text);
+
+      font-size: 18px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.08s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .key:hover {
+      background: var(--button-hover);
+
+      box-shadow:
+        0 7px 16px rgba(15, 23, 42, 0.07);
+    }
+
+    .key:active {
+      transform: scale(0.94);
+      box-shadow: none;
+    }
+
+    .key.operator {
+      background: var(--operator);
+      color: #1e3a8a;
+    }
+
+    .key.operator:hover {
+      background: var(--operator-hover);
+    }
+
+    .key.clear {
+      color: white;
+      background:
+        linear-gradient(
+          135deg,
+          var(--danger),
+          #f97316
+        );
+    }
+
+    .key.clear:hover {
+      background:
+        linear-gradient(
+          135deg,
+          var(--danger-dark),
+          #ea580c
+        );
+    }
+
+    .key.equals {
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--success),
+          #14b8a6
+        );
+    }
+
+    .key.equals:hover {
+      background:
+        linear-gradient(
+          135deg,
+          var(--success-dark),
+          #0d9488
+        );
+
+      box-shadow:
+        0 10px 22px rgba(16, 185, 129, 0.25);
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    /* ================= HISTORY ================= */
+
+    .history-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding-bottom: 14px;
+
+      border-bottom: 1px solid var(--border);
+
+      margin-bottom: 12px;
+    }
+
+    .history-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .clear-history {
+      border: none;
+      background: transparent;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    .clear-history:hover {
+      color: var(--danger);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      list-style: none;
+
+      max-height: 440px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      gap: 12px;
+
+      padding: 13px 12px;
+
+      border-radius: 12px;
+
+      background: rgba(248, 250, 252, 0.8);
+
+      border: 1px solid var(--border);
+
+      cursor: pointer;
+
+      transition: 0.18s ease;
+    }
+
+    .history-item:hover {
+      transform: translateY(-1px);
+
+      background: white;
+
+      box-shadow:
+        0 5px 14px rgba(15, 23, 42, 0.06);
+    }
+
+    .history-expression {
+      color: var(--muted);
+
+      font-size: 12px;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-result {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .empty-history {
+      min-height: 180px;
+
+      display: grid;
+      place-items: center;
+
+      text-align: center;
+
+      color: var(--muted);
+
+      border: 1px dashed #cbd5e1;
+
+      border-radius: 15px;
+
+      font-size: 13px;
+    }
+
+    .empty-history i {
+      font-size: 24px;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    /* ================= CURRENCY ================= */
+
+    .currency-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .currency-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .currency-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .currency-row {
+      display: grid;
+      grid-template-columns: 1fr 175px;
+      gap: 10px;
+    }
+
+    .currency-input {
+      width: 100%;
+
+      border: 1px solid var(--border);
+
+      border-radius: 14px;
+
+      padding: 15px;
+
+      outline: none;
+
+      background: white;
+
+      font-size: 18px;
+      font-weight: 700;
+
+      transition: 0.2s ease;
+    }
+
+    .currency-input:focus {
+      border-color: var(--primary);
+
+      box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .currency-select {
+      display: flex;
+      align-items: center;
+
+      gap: 8px;
+
+      padding: 0 10px;
+
+      border-radius: 14px;
+
+      border: 1px solid var(--border);
+
+      background: white;
+    }
+
+    .currency-select img {
+      width: 25px;
+      height: 18px;
+
+      object-fit: cover;
+
+      border-radius: 3px;
+    }
+
+    .currency-select select {
+      flex: 1;
+
+      min-width: 0;
+
+      border: none;
+
+      outline: none;
+
+      background: transparent;
+
+      font-size: 14px;
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    .swap {
+      align-self: center;
+
+      border: none;
+
+      padding: 10px 18px;
+
+      border-radius: 999px;
+
+      background: var(--primary-soft);
+
+      color: var(--primary-dark);
+
+      font-size: 13px;
+      font-weight: 800;
+
+      cursor: pointer;
+
+      transition: 0.2s ease;
+    }
+
+    .swap:hover {
+      transform: translateY(-1px);
+
+      background: #bfdbfe;
+    }
+
+    .rate {
+      padding: 12px;
+
+      text-align: center;
+
+      border-radius: 12px;
+
+      background: #f8fafc;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ================= FOCUS ================= */
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 2px;
+    }
+
+    /* ================= MOBILE ================= */
+
+    @media (max-width: 800px) {
+      body {
+        padding: 18px 10px;
+      }
+
+      .header {
+        align-items: flex-start;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        max-width: none;
+      }
+
+      .history-card {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .brand h1 {
+        font-size: 19px;
+      }
+
+      .brand p {
+        font-size: 11px;
+      }
+
+      .logo {
+        width: 45px;
+        height: 45px;
+      }
+
+      .tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .tab {
+        padding: 11px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 19px;
+      }
+
+      .display {
+        min-height: 125px;
+        padding: 16px;
+      }
+
+      .key {
+        min-height: 55px;
+        font-size: 16px;
+        border-radius: 12px;
+      }
+
+      .currency-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+
+    <div class="brand">
+
+      <div class="logo">
+        <i class="fa-solid fa-calculator"></i>
+      </div>
+
+      <div>
+        <h1>VPSS Calculator</h1>
+        <p>Calculate · Convert · Simplify</p>
+      </div>
+
+    </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      Ready
+    </div>
+
+  </header>
+
+
+  <!-- MODES -->
+  <nav class="tabs">
+
+    <button
+      class="tab active"
+      onclick="switchMode('basic')"
+    >
+      <i class="fa-solid fa-calculator"></i>
+      Basic
+    </button>
+
+    <button
+      class="tab"
+      onclick="switchMode('scientific')"
+    >
+      <i class="fa-solid fa-flask"></i>
+      Scientific
+    </button>
+
+    <button
+      class="tab"
+      onclick="switchMode('currency')"
+    >
+      <i class="fa-solid fa-coins"></i>
+      Currency
+    </button>
+
+  </nav>
+
+
+  <!-- MAIN -->
+  <main
+    class="layout"
+    id="layout"
+  >
+
+    <!-- CALCULATOR -->
+    <section class="card">
+
+      <div
+        class="display"
+        id="display"
+      >
+
+        <div
+          class="expression"
+          id="expression"
+        >
+          Ready
+        </div>
+
+        <div
+          class="result"
+          id="result"
+        >
+          0
+        </div>
+
+      </div>
+
+      <div
+        id="keypad"
+        class="keypad basic-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- HISTORY -->
+    <aside
+      class="card history-card"
+      id="historyCard"
+    >
+
+      <div class="history-header">
+
+        <div class="history-title">
+          <i class="fa-regular fa-clock"></i>
+          History
+        </div>
+
+        <button
+          class="clear-history"
+          onclick="clearHistory()"
+        >
+          Clear
+        </button>
+
+      </div>
+
+      <ul
+        class="history-list"
+        id="historyList"
+      ></ul>
+
+    </aside>
+
+  </main>
+
+</div>
+
+
+<script>
+
+  /* =====================================================
+     STATE
+  ===================================================== */
+
+  let mode = "basic";
+
+  let value = "0";
+  let expression = "";
+
+  let resetValue = false;
+
+  let history =
+    JSON.parse(
+      localStorage.getItem(
+        "vpss-history"
+      ) || "[]"
+    );
+
+  const rateCache = {};
+
+
+  /* =====================================================
+     CURRENCIES
+  ===================================================== */
+
+  const currencies = {
+
+    USD: "us",
+    EUR: "eu",
+    GBP: "gb",
+    INR: "in",
+    JPY: "jp",
+    CAD: "ca",
+    AUD: "au",
+    AED: "ae",
+    SGD: "sg",
+    CNY: "cn"
+
+  };
+
+
+  /* =====================================================
+     INITIALIZE
+  ===================================================== */
+
+  window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      renderBasic();
+
+      renderHistory();
+
+    }
+  );
+
+
+  /* =====================================================
+     MODE SWITCHING
+  ===================================================== */
+
+  function switchMode(newMode) {
+
+    mode = newMode;
+
+    document
+      .querySelectorAll(".tab")
+      .forEach(
+        (button, index) => {
+
+          const active =
+            (newMode === "basic" && index === 0) ||
+            (newMode === "scientific" && index === 1) ||
+            (newMode === "currency" && index === 2);
+
+          button.classList.toggle(
+            "active",
+            active
+          );
+
+        }
+      );
+
+
+    const layout =
+      document.getElementById(
+        "layout"
+      );
+
+    const historyCard =
+      document.getElementById(
+        "historyCard"
+      );
+
+    const display =
+      document.getElementById(
+        "display"
+      );
+
+
+    if (newMode === "basic") {
+
+      layout.classList.remove(
+        "single"
+      );
+
+      historyCard.style.display =
+        "flex";
+
+      display.style.display =
+        "flex";
+
+      renderBasic();
+
+    }
+
+
+    else if (
+      newMode === "scientific"
+    ) {
+
+      layout.classList.add(
+        "single"
+      );
+
+      historyCard.style.display =
+        "none";
+
+      display.style.display =
+        "flex";
+
+      renderScientific();
+
+    }
+
+
+    else {
+
+      layout.classList.add(
+        "single"
+      );
+
+      historyCard.style.display =
+        "none";
+
+      display.style.display =
+        "none";
+
+      renderCurrency();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     BASIC KEYPAD
+  ===================================================== */
+
+  function renderBasic() {
+
+    const keypad =
+      document.getElementById(
+        "keypad"
+      );
+
+    keypad.className =
+      "keypad basic-grid";
+
+    keypad.innerHTML = `
+
+      <button class="key clear"
+        onclick="clearCalculator()">
+        C
+      </button>
+
+      <button class="key"
+        onclick="backspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+
+      <button class="key"
+        onclick="appendValue('%')">
+        %
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('÷')">
+        ÷
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('7')">
+        7
+      </button>
+
+      <button class="key"
+        onclick="appendValue('8')">
+        8
+      </button>
+
+      <button class="key"
+        onclick="appendValue('9')">
+        9
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('×')">
+        ×
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('4')">
+        4
+      </button>
+
+      <button class="key"
+        onclick="appendValue('5')">
+        5
+      </button>
+
+      <button class="key"
+        onclick="appendValue('6')">
+        6
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('-')">
+        −
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('1')">
+        1
+      </button>
+
+      <button class="key"
+        onclick="appendValue('2')">
+        2
+      </button>
+
+      <button class="key"
+        onclick="appendValue('3')">
+        3
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('+')">
+        +
+      </button>
+
+
+      <button
+        class="key span-2"
+        onclick="appendValue('0')"
+      >
+        0
+      </button>
+
+      <button
+        class="key"
+        onclick="appendValue('.')"
+      >
+        .
+      </button>
+
+      <button
+        class="key equals"
+        onclick="calculate()"
+      >
+        =
+      </button>
+
+    `;
+
+  }
+
+
+  /* =====================================================
+     SCIENTIFIC KEYPAD
+  ===================================================== */
+
+  function renderScientific() {
+
+    const keypad =
+      document.getElementById(
+        "keypad"
+      );
+
+    keypad.className =
+      "keypad scientific-grid";
+
+    keypad.innerHTML = `
+
+      <button class="key"
+        onclick="appendFunction('sin')">
+        sin
+      </button>
+
+      <button class="key"
+        onclick="appendFunction('cos')">
+        cos
+      </button>
+
+      <button class="key"
+        onclick="appendFunction('tan')">
+        tan
+      </button>
+
+      <button class="key"
+        onclick="appendFunction('log')">
+        log
+      </button>
+
+      <button class="key clear"
+        onclick="clearCalculator()">
+        C
+      </button>
+
+
+      <button class="key"
+        onclick="appendFunction('sqrt')">
+        √
+      </button>
+
+      <button class="key"
+        onclick="appendValue('(')">
+        (
+      </button>
+
+      <button class="key"
+        onclick="appendValue(')')">
+        )
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('÷')">
+        ÷
+      </button>
+
+      <button class="key"
+        onclick="backspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('7')">
+        7
+      </button>
+
+      <button class="key"
+        onclick="appendValue('8')">
+        8
+      </button>
+
+      <button class="key"
+        onclick="appendValue('9')">
+        9
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('×')">
+        ×
+      </button>
+
+      <button class="key"
+        onclick="appendValue('^')">
+        xʸ
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('4')">
+        4
+      </button>
+
+      <button class="key"
+        onclick="appendValue('5')">
+        5
+      </button>
+
+      <button class="key"
+        onclick="appendValue('6')">
+        6
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('-')">
+        −
+      </button>
+
+      <button class="key"
+        onclick="appendValue('π')">
+        π
+      </button>
+
+
+      <button class="key"
+        onclick="appendValue('1')">
+        1
+      </button>
+
+      <button class="key"
+        onclick="appendValue('2')">
+        2
+      </button>
+
+      <button class="key"
+        onclick="appendValue('3')">
+        3
+      </button>
+
+      <button class="key operator"
+        onclick="appendValue('+')">
+        +
+      </button>
+
+      <button class="key"
+        onclick="appendValue('e')">
+        e
+      </button>
+
+
+      <button
+        class="key span-2"
+        onclick="appendValue('0')"
+      >
+        0
+      </button>
+
+      <button
+        class="key"
+        onclick="appendValue('.')"
+      >
+        .
+      </button>
+
+      <button
+        class="key equals span-2"
+        onclick="calculate()"
+      >
+        =
+      </button>
+
+    `;
+
+  }
+
+
+  /* =====================================================
+     INPUT
+  ===================================================== */
+
+  function appendValue(char) {
+
+    if (
+      value === "Error" ||
+      resetValue
+    ) {
+
+      value = "";
+      resetValue = false;
+
+    }
+
+
+    if (
+      value === "0" &&
+      char !== "."
+    ) {
+
+      value = char;
+
+    }
+
+    else {
+
+      value += char;
+
+    }
+
+    updateDisplay();
+
+  }
+
+
+  function appendFunction(name) {
+
+    if (
+      value === "Error" ||
+      resetValue
+    ) {
+
+      value = "";
+      resetValue = false;
+
+    }
+
+    value += name + "(";
+
+    updateDisplay();
+
+  }
+
+
+  function backspace() {
+
+    if (
+      value === "Error" ||
+      resetValue
+    ) {
+
+      clearCalculator();
+      return;
+
+    }
+
+    if (value.length <= 1) {
+
+      value = "0";
+
+    }
+
+    else {
+
+      value =
+        value.slice(
+          0,
+          -1
+        );
+
+    }
+
+    updateDisplay();
+
+  }
+
+
+  function clearCalculator() {
+
+    value = "0";
+    expression = "";
+    resetValue = false;
+
+    updateDisplay();
+
+  }
+
+
+  /* =====================================================
+     CALCULATION
+  ===================================================== */
+
+  function calculate() {
+
+    try {
+
+      if (
+        !value ||
+        value === "Error"
+      ) return;
+
+
+      let parsed =
+        value
+
+          .replace(
+            /×/g,
+            "*"
+          )
+
+          .replace(
+            /÷/g,
+            "/"
+          )
+
+          .replace(
+            /π/g,
+            "Math.PI"
+          )
+
+          .replace(
+            /(?<![A-Za-z])e(?![A-Za-z])/g,
+            "Math.E"
+          )
+
+          .replace(
+            /sin\(/g,
+            "Math.sin("
+          )
+
+          .replace(
+            /cos\(/g,
+            "Math.cos("
+          )
+
+          .replace(
+            /tan\(/g,
+            "Math.tan("
+          )
+
+          .replace(
+            /log\(/g,
+            "Math.log10("
+          )
+
+          .replace(
+            /sqrt\(/g,
+            "Math.sqrt("
+          )
+
+          .replace(
+            /ln\(/g,
+            "Math.log("
+          )
+
+          .replace(
+            /(\d+(?:\.\d+)?)%/g,
+            "($1/100)"
+          )
+
+          .replace(
+            /\^/g,
+            "**"
+          );
+
+
+      const result =
+        Function(
+          `"use strict"; return (${parsed})`
+        )();
+
+
+      if (
+        typeof result !== "number" ||
+        !Number.isFinite(result)
+      ) {
+
+        throw new Error();
+
+      }
+
+
+      const rounded =
+        Math.round(
+          result * 100000000
+        ) / 100000000;
+
+
+      addHistory(
+        value,
+        rounded
+      );
+
+
+      expression =
+        value + " =";
+
+      value =
+        String(rounded);
+
+      resetValue = true;
+
+      updateDisplay();
+
+    }
+
+    catch {
+
+      expression =
+        value;
+
+      value =
+        "Error";
+
+      resetValue = true;
+
+      updateDisplay();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     DISPLAY
+  ===================================================== */
+
+  function updateDisplay() {
+
+    const result =
+      document.getElementById(
+        "result"
+      );
+
+    const expressionElement =
+      document.getElementById(
+        "expression"
+      );
+
+    const display =
+      document.getElementById(
+        "display"
+      );
+
+
+    result.textContent =
+      value || "0";
+
+    expressionElement.textContent =
+      expression || "Ready";
+
+
+    display.classList.toggle(
+      "error",
+      value === "Error"
+    );
+
+  }
+
+
+  /* =====================================================
+     HISTORY
+  ===================================================== */
+
+  function addHistory(
+    expr,
+    result
+  ) {
+
+    history.unshift({
+      expr,
+      result
+    });
+
+
+    history =
+      history.slice(
+        0,
+        30
+      );
+
+
+    localStorage.setItem(
+      "vpss-history",
+      JSON.stringify(history)
+    );
+
+
+    renderHistory();
+
+  }
+
+
+  function renderHistory() {
+
+    const list =
+      document.getElementById(
+        "historyList"
+      );
+
+
+    if (!history.length) {
+
+      list.innerHTML = `
+
+        <li class="empty-history">
+
+          <div>
+
+            <i class="fa-regular fa-clock"></i>
+
+            <br>
+
+            No calculations yet
+
+          </div>
+
+        </li>
+
+      `;
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      history
+        .map(
+          (item, index) => `
+
+          <li
+            class="history-item"
+            onclick="reuseHistory(${index})"
+          >
+
+            <span
+              class="history-expression"
+            >
+              ${escapeHTML(
+                String(item.expr)
+              )}
+            </span>
+
+            <span
+              class="history-result"
+            >
+              ${escapeHTML(
+                String(item.result)
+              )}
+            </span>
+
+          </li>
+
+        `
+        )
+        .join("");
+
+  }
+
+
+  function reuseHistory(index) {
+
+    const item =
+      history[index];
+
+    if (!item) return;
+
+    value =
+      String(item.result);
+
+    expression =
+      item.expr + " =";
+
+    resetValue = true;
+
+    updateDisplay();
+
+  }
+
+
+  function clearHistory() {
+
+    history = [];
+
+    localStorage.removeItem(
+      "vpss-history"
+    );
+
+    renderHistory();
+
+  }
+
+
+  function escapeHTML(text) {
+
+    return text.replace(
+      /[&<>"']/g,
+      char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]
+    );
+
+  }
+
+
+  /* =====================================================
+     KEYBOARD
+  ===================================================== */
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        mode === "currency"
+      ) return;
+
+
+      const key =
+        event.key;
+
+
+      if (
+        /^[0-9.]$/.test(key)
+      ) {
+
+        appendValue(key);
+
+      }
+
+      else if (
+        ["+", "-", "*", "/"].includes(key)
+      ) {
+
+        const map = {
+          "*": "×",
+          "/": "÷"
+        };
+
+        appendValue(
+          map[key] || key
+        );
+
+      }
+
+      else if (
+        key === "%"
+      ) {
+
+        appendValue("%");
+
+      }
+
+      else if (
+        key === "Enter" ||
+        key === "="
+      ) {
+
+        event.preventDefault();
+
+        calculate();
+
+      }
+
+      else if (
+        key === "Backspace"
+      ) {
+
+        backspace();
+
+      }
+
+      else if (
+        key === "Escape"
+      ) {
+
+        clearCalculator();
+
+      }
+
+    }
+  );
+
+
+  /* =====================================================
+     CURRENCY CONVERTER
+  ===================================================== */
+
+  function renderCurrency() {
+
+    const keypad =
+      document.getElementById(
+        "keypad"
+      );
+
+
+    keypad.className =
+      "currency-panel";
+
+
+    const options =
+      Object.keys(currencies)
+        .map(
+          code =>
+            `<option value="${code}">
+              ${code}
+            </option>`
+        )
+        .join("");
+
+
+    keypad.innerHTML = `
+
+      <div class="currency-group">
+
+        <label class="currency-label">
+          Amount & From
+        </label>
+
+        <div class="currency-row">
+
+          <input
+            class="currency-input"
+            id="currencyAmount"
+            type="number"
+            value="1"
+            min="0"
+            oninput="convertCurrency()"
+          />
+
+          <div class="currency-select">
+
+            <img
+              id="fromFlag"
+              src="https://flagcdn.com/w40/us.png"
+              alt=""
+            />
+
+            <select
+              id="fromCurrency"
+              onchange="
+                updateCurrencyFlags();
+                convertCurrency(true);
+              "
+            >
+              ${options}
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="swap"
+        onclick="swapCurrencies()"
+      >
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        Swap currencies
+      </button>
+
+
+      <div class="currency-group">
+
+        <label class="currency-label">
+          Converted Amount & To
+        </label>
+
+        <div class="currency-row">
+
+          <input
+            class="currency-input"
+            id="currencyResult"
+            readonly
+            placeholder="Result"
+          />
+
+          <div class="currency-select">
+
+            <img
+              id="toFlag"
+              src="https://flagcdn.com/w40/in.png"
+              alt=""
+            />
+
+            <select
+              id="toCurrency"
+              onchange="
+                updateCurrencyFlags();
+                convertCurrency();
+              "
+            >
+              ${options}
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="rate"
+        id="rateInfo"
+      >
+        Fetching exchange rate...
+      </div>
+
+    `;
+
+
+    document.getElementById(
+      "fromCurrency"
+    ).value = "USD";
+
+
+    document.getElementById(
+      "toCurrency"
+    ).value = "INR";
+
+
+    updateCurrencyFlags();
+
+    convertCurrency();
+
+  }
+
+
+  function updateCurrencyFlags() {
+
+    const from =
+      document.getElementById(
+        "fromCurrency"
+      ).value;
+
+    const to =
+      document.getElementById(
+        "toCurrency"
+      ).value;
+
+
+    document.getElementById(
+      "fromFlag"
+    ).src =
+      `https://flagcdn.com/w40/${currencies[from]}.png`;
+
+
+    document.getElementById(
+      "toFlag"
+    ).src =
+      `https://flagcdn.com/w40/${currencies[to]}.png`;
+
+  }
+
+
+  function swapCurrencies() {
+
+    const from =
+      document.getElementById(
+        "fromCurrency"
+      );
+
+    const to =
+      document.getElementById(
+        "toCurrency"
+      );
+
+
+    const temporary =
+      from.value;
+
+    from.value =
+      to.value;
+
+    to.value =
+      temporary;
+
+
+    updateCurrencyFlags();
+
+    convertCurrency(true);
+
+  }
+
+
+  async function convertCurrency(
+    forceRefresh = false
+  ) {
+
+    const amountInput =
+      document.getElementById(
+        "currencyAmount"
+      );
+
+    const resultInput =
+      document.getElementById(
+        "currencyResult"
+      );
+
+    const fromSelect =
+      document.getElementById(
+        "fromCurrency"
+      );
+
+    const toSelect =
+      document.getElementById(
+        "toCurrency"
+      );
+
+    const rateInfo =
+      document.getElementById(
+        "rateInfo"
+      );
+
+
+    if (
+      !amountInput ||
+      !resultInput
+    ) return;
+
+
+    const amount =
+      Number(
+        amountInput.value
+      );
+
+    const from =
+      fromSelect.value;
+
+    const to =
+      toSelect.value;
+
+
+    if (
+      !Number.isFinite(amount) ||
+      amount < 0
+    ) {
+
+      resultInput.value =
+        "Enter a valid amount";
+
+      return;
+
+    }
+
+
+    if (
+      !forceRefresh &&
+      rateCache[from] &&
+      rateCache[from][to]
+    ) {
+
+      showCurrencyResult(
+        amount,
+        from,
+        to,
+        rateCache[from][to]
+      );
+
+      return;
+
+    }
+
+
+    resultInput.value =
+      "Loading...";
+
+
+    try {
+
+      const response =
+        await fetch(
+          `https://open.er-api.com/v6/latest/${from}`
+        );
+
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !data.rates ||
+        !data.rates[to]
+      ) {
+
+        throw new Error();
+
+      }
+
+
+      rateCache[from] =
+        data.rates;
+
+
+      showCurrencyResult(
+        amount,
+        from,
+        to,
+        data.rates[to]
+      );
+
+    }
+
+    catch {
+
+      resultInput.value =
+        "Unavailable";
+
+      rateInfo.textContent =
+        "Unable to fetch live exchange rates.";
+
+    }
+
+  }
+
+
+  function showCurrencyResult(
+    amount,
+    from,
+    to,
+    rate
+  ) {
+
+    const result =
+      amount * rate;
+
+
+    document.getElementById(
+      "currencyResult"
+    ).value =
+      `${formatNumber(result)} ${to}`;
+
+
+    document.getElementById(
+      "rateInfo"
+    ).innerHTML =
+      `1 ${from} = ${formatNumber(rate, 6)} ${to}`;
+
+  }
+
+
+  function formatNumber(
+    number,
+    decimals = 2
+  ) {
+
+    return Number(
+      number.toFixed(decimals)
+    ).toLocaleString();
+
+  }
+
+</script>
+
+</body>
+</html>
